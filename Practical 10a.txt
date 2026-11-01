@@ -1,0 +1,18 @@
+from sklearn.tree import DecisionTreeClassifier
+
+# Training data
+X = [[30], [40], [50], [60], [70], [80]]
+y = [0, 0, 0, 1, 1, 1]
+
+# Train model
+model = DecisionTreeClassifier()
+model.fit(X, y)
+
+# Prediction
+marks = [[65]]
+result = model.predict(marks)
+
+if result[0] == 1:
+    print("Student Passed")
+else:
+    print("Student Failed")

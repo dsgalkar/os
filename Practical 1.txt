@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Module 1 Demonstration Script
+
+# 1. Directory and File Operations
+mkdir -p os_lab/module1
+cd os_lab/module1 || exit 1
+
+touch sample.txt
+echo "Operating Systems Lab - AI & ML" > sample.txt
+
+echo "File created and content written successfully."
+
+# 2. Permission Management
+chmod 644 sample.txt
+
+echo "File details:"
+ls -l sample.txt
+
+# 3. Process Monitoring and Signal Control
+sleep 100 &
+PID=$!
+
+echo "Background process started with PID: $PID"
+
+# Display process information
+ps -p "$PID"
+
+# Terminate the background process
+kill -9 "$PID"
+
+echo "Process $PID terminated successfully."

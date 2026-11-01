@@ -1,0 +1,99 @@
+
+#include <stdio.h>
+
+int main()
+{
+    int p[]={1,2,3,1,4,5};
+    int n=6, f=3, a[3];
+    int faults, hits;
+
+    // FIFO
+    printf("\nFIFO:\n");
+    faults=hits=0;
+
+    for(int i=0;i<f;i++) a[i]=-1;
+
+    for(int i=0;i<n;i++)
+    {
+        int found=0;
+        for(int j=0;j<f;j++)
+            if(a[j]==p[i]) found=1;
+
+        if(!found)
+        {
+            a[faults%f]=p[i];
+            faults++;
+        }
+        else hits++;
+    }
+    printf("Faults=%d Hits=%d\n",faults,hits);
+
+    // LRU
+    printf("\nLRU:\n");
+    faults=hits=0;
+    int t[3]={0}, time=0;
+
+    for(int i=0;i<f;i++) a[i]=-1;
+
+    for(int i=0;i<n;i++)
+    {
+        int pos=-1;
+
+        for(int j=0;j<f;j++)
+            if(a[j]==p[i]) pos=j;
+
+        if(pos!=-1)
+        {
+            hits++;
+            t[pos]=++time;
+        }
+        else
+        {
+            int k=0;
+            for(int j=0;j<f;j++)
+            {
+                if(a[j]==-1) {k=j; break;}
+                if(t[j]<t[k]) k=j;
+            }
+            a[k]=p[i];
+            t[k]=++time;
+            faults++;
+        }
+    }
+    printf("Faults=%d Hits=%d\n",faults,hits);
+
+    // Optimal
+    printf("\nOptimal:\n");
+    faults=hits=0;
+
+    for(int i=0;i<f;i++) a[i]=-1;
+
+    for(int i=0;i<n;i++)
+    {
+        int found=0;
+        for(int j=0;j<f;j++)
+            if(a[j]==p[i]) found=1;
+
+        if(found) hits++;
+        else
+        {
+            int k=-1, far=-1;
+
+            for(int j=0;j<f;j++)
+            {
+                int next=i+1;
+                while(next<n && pages[next]!=a[j])
+                    next++;
+
+                if(a[j]==-1) {k=j; break;}
+                if(next>far) {far=next; k=j;}
+            }
+
+            a[k]=p[i];
+            faults++;
+        }
+    }
+    printf("Faults=%d Hits=%d\n",faults,hits);
+
+    return 0;
+}

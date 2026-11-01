@@ -1,0 +1,50 @@
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/msg.h>
+
+struct message
+{
+    long type;
+    char text[50];
+};
+
+int main()
+{
+    // 1. Pipe
+    int fd[2];
+    char buf[50];
+
+    pipe(fd);
+    write(fd[1], "Hello Pipe", 11);
+    read(fd[0], buf, sizeof(buf));
+    printf("Pipe: %s\n", buf);
+
+    // 2. Shared Memory
+    int id = shmget(1234, 1024, 0666 | IPC_CREAT);
+    char *p = (char*)shmat(id, NULL, 0);
+
+    sprintf(p, "Hello Shared Memory");
+    printf("Shared Memory: %s\n", p);
+
+    shmdt(p);
+    shmctl(id, IPC_RMID, NULL);
+
+    // 3. Message Queue
+    int q = msgget(1234, 0666 | IPC_CREAT);
+    struct message m;
+
+    m.type = 1;
+    sprintf(m.text, "Hello Message Queue");
+
+    msgsnd(q, &m, sizeof(m.text), 0);
+    msgrcv(q, &m, sizeof(m.text), 1, 0);
+
+    printf("Message Queue: %s\n", m.text);
+
+    msgctl(q, IPC_RMID, NULL);
+
+    return 0;
+}

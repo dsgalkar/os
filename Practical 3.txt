@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main() {
+    int bt[] = {5, 3, 1}, n = 3, i, j, t = 2;
+    int wt[3] = {0}, tat[3], rem[3], temp;
+
+    // Process creation using system call
+    if (fork() == 0) {
+        printf("Child process created\n");
+        return 0;
+    }
+    wait(NULL);
+    printf("Parent process completed\n");
+
+    // FCFS Scheduling
+    printf("\nFCFS:\n");
+    for (i = 0; i < n; i++) {
+        tat[i] = wt[i] + bt[i];
+        if (i < n - 1) wt[i + 1] = tat[i];
+        printf("P%d WT=%d TAT=%d\n", i + 1, wt[i], tat[i]);
+    }
+
+    // SJF Scheduling (sort burst times)
+    printf("\nSJF:\n");
+    for (i = 0; i < n; i++)
+        for (j = i + 1; j < n; j++)
+            if (bt[i] > bt[j]) {
+                temp = bt[i]; bt[i] = bt[j]; bt[j] = temp;
+            }
+
+    wt[0] = 0;
+    for (i = 0; i < n; i++) {
+        tat[i] = wt[i] + bt[i];
+        if (i < n - 1) wt[i + 1] = tat[i];
+        printf("P%d WT=%d TAT=%d\n", i + 1, wt[i], tat[i]);
+    }
+
+    // Round Robin Scheduling
+    printf("\nRound Robin:\n");
+    for (i = 0; i < n; i++) rem[i] = bt[i];
+    int time = 0;
+    while (1) {
+        int done = 1;
+        for (i = 0; i < n; i++) {
+            if (rem[i] > 0) {
+                done = 0;
+                if (rem[i] > t) {
+                    time += t;
+                    rem[i] -= t;
+                } else {
+                    time += rem[i];
+                    rem[i] = 0;
+                    printf("P%d completed at %d\n", i + 1, time);
+                }
+            }
+        }
+        if (done) break;
+    }
+    return 0;
+}

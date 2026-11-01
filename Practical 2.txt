@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Backup and Cleanup Automation Script
+
+SRC_DIR="$1"
+BACKUP_DIR="./backups"
+
+# Check disk usage
+check_storage() {
+    echo "--- Checking Disk Usage ---"
+    df -h
+}
+
+# Perform backup
+perform_backup() {
+    if [ -z "$SRC_DIR" ]; then
+        echo "Usage: $0 <source_directory>"
+        exit 1
+    fi
+
+    if [ -d "$SRC_DIR" ]; then
+        mkdir -p "$BACKUP_DIR" || exit 1
+
+        TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+        ARCHIVE_NAME="backup_${TIMESTAMP}.tar.gz"
+
+        if tar -czf "$BACKUP_DIR/$ARCHIVE_NAME" "$SRC_DIR"; then
+            echo "Successfully created $BACKUP_DIR/$ARCHIVE_NAME"
+        else
+            echo "Error: Backup failed!"
+            exit 1
+        fi
+    else
+        echo "Error: Source directory '$SRC_DIR' does not exist!"
+        exit 1
+    fi
+}
+
+# Execute functions
+check_storage
+perform_backup
